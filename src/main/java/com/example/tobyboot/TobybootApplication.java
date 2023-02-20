@@ -2,6 +2,7 @@ package com.example.tobyboot;
 
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServer;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,9 @@ public class TobybootApplication {
 
     public static void main(String[] args) {
         TomcatServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
-        // TomcatServletWebServerFactory serverFactory = new JettyServletWebServerFactory();
+        GenericApplicationContext applicationContext = new GenericApplicationContext();
+        applicationContext.registerBean(HelloController.class);
+        applicationContext.refresh();
 
         WebServer webServer = serverFactory.getWebServer(servletContext -> {
             servletContext.addServlet("frontcontrller", new HttpServlet() {
@@ -30,15 +33,13 @@ public class TobybootApplication {
                     if (req.getRequestURI().equals("/hello") && req.getMethod().equals(HttpMethod.GET.name())) {
                         String name = req.getParameter("name");
 
+                        HelloController helloController = applicationContext.getBean(HelloController.class);
+                        String ret = helloController.hello(name);
+
                         // 응답에 관한 코드
-                        // 상태 라인, 상태 코드
-                        resp.setStatus(HttpStatus.OK.value());
-                        // 컨텐츠 타입 헤더
-                        resp.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+                        resp.setContentType(MediaType.TEXT_PLAIN_VALUE);
                         // 바디
-                        resp.getWriter().println("Hello " + name);
-                    } else if (req.getRequestURI().equals("/user")) {
-                        //
+                        resp.getWriter().println(ret);
                     } else {
                         resp.setStatus(HttpStatus.NOT_FOUND.value());
                     }
