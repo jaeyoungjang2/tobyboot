@@ -24,12 +24,15 @@ public class TobybootApplication {
             servletContext.addServlet("hello2", new HttpServlet() {
                 @Override
                 protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                    String name = req.getParameter("name");
+
+                    // 응답에 관한 코드
                     // 상태 라인, 상태 코드
                     resp.setStatus(HttpStatus.OK.value());
                     // 컨텐츠 타입 헤더
                     resp.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
                     // 바디
-                    resp.getWriter().println("Hello Servlet");
+                    resp.getWriter().println("Hello " + name);
                 }
             }).addMapping("/hello2");
         });
